@@ -2,18 +2,24 @@ import asyncio
 import io
 import logging
 import os
+import sys
 import traceback
 from abc import ABC
 from collections.abc import Iterable
-from typing import override, Optional
+from typing import Optional
 
 from pyqrcode import QRCode
 
 from vchat import config, utils
 from vchat.core.interface import CoreInterface
-from vchat.errors import VNetworkError, VUserCallbackError, VOperationFailedError
-from vchat.model import RawMessage
+from vchat.errors import VUserCallbackError, VOperationFailedError
 from vchat.model import Chatroom, User, Contact
+from vchat.model import RawMessage
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 logger = logging.getLogger("vchat")
 

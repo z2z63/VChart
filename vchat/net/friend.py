@@ -1,13 +1,17 @@
+import sys
 import time
 from abc import ABC
 from collections.abc import AsyncGenerator
-from typing import override, BinaryIO
-
+from typing import BinaryIO
 
 from vchat.errors import VOperationFailedError
 from vchat.model import User
 from vchat.net.interface import NetHelperInterface
 
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 class NetHelperFriendMixin(NetHelperInterface, ABC):
     @override

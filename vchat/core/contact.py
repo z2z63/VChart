@@ -1,15 +1,21 @@
 import copy
 import logging
+import sys
 from abc import ABC
 from itertools import batched
 from pathlib import Path
-from typing import override, Optional, BinaryIO, overload
+from typing import Optional, BinaryIO, overload
 
 from aiohttp import ClientError
 
 from vchat.core.interface import CoreInterface
 from vchat.errors import VMalformedParameterError
 from vchat.model import Chatroom, User, MassivePlatform, Contact
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 logger = logging.getLogger("vchat")
 

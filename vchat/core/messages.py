@@ -1,10 +1,11 @@
 import json
 import logging
 import re
+import sys
 from abc import ABC
 from collections.abc import Iterable, AsyncGenerator
 from pathlib import Path
-from typing import override, BinaryIO
+from typing import BinaryIO
 
 from vchat import utils
 from vchat.core.interface import CoreInterface
@@ -13,6 +14,10 @@ from vchat.model import Content
 from vchat.model import RawMessage, Message
 from vchat.model import User, Contact
 
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 logger = logging.getLogger("vchat")
 
 

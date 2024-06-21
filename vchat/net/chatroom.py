@@ -1,11 +1,17 @@
+import sys
 import time
 from abc import ABC
 from collections.abc import AsyncGenerator, Collection
-from typing import override, BinaryIO
+from typing import BinaryIO
 
 from vchat.errors import VOperationFailedError
 from vchat.model import User
 from vchat.net.interface import NetHelperInterface, catch_exception
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 
 class NetHelperChatroomMixin(NetHelperInterface, ABC):
@@ -91,7 +97,9 @@ class NetHelperChatroomMixin(NetHelperInterface, ABC):
         async with self.session.post(url, params=params, data=data) as resp:
             dic = await resp.json(content_type=None)
             if dic["BaseResponse"]["Ret"] != 0:
-                raise VOperationFailedError(f"设置群聊{chatroom_username}名称为{name}失败")
+                raise VOperationFailedError(
+                    f"设置群聊{chatroom_username}名称为{name}失败"
+                )
 
     @override
     @catch_exception

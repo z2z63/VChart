@@ -5,7 +5,6 @@ import traceback
 from abc import ABC
 from collections.abc import Callable, Awaitable
 from pathlib import Path
-from typing import override
 
 from vchat.core.interface import CoreInterface
 from vchat.errors import VChatError
@@ -14,6 +13,10 @@ from vchat.model import Chatroom, MassivePlatform, User
 from vchat.model import ContentTypes, ContactTypes
 from vchat.model import Message
 
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 logger = logging.getLogger("vchat")
 
 

@@ -1,10 +1,15 @@
+import sys
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import override
 
 from vchat.model import Contact
 from vchat.model import Content
 from vchat.model import User
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 
 class RawMessage(Mapping):

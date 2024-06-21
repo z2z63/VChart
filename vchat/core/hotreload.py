@@ -1,8 +1,9 @@
 import logging
 import pickle
+import sys
 from abc import ABC
 from pathlib import Path
-from typing import override, Optional
+from typing import Optional
 
 from vchat.config import VERSION
 from vchat.core.interface import CoreInterface
@@ -14,6 +15,10 @@ from vchat.errors import (
 )
 from vchat.model import Chatroom, User
 
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 logger = logging.getLogger("vchat")
 
 

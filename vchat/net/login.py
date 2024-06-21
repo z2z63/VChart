@@ -1,8 +1,9 @@
 import re
+import sys
 import time
 from abc import ABC
 from collections.abc import Iterable
-from typing import override, Optional
+from typing import Optional
 
 import yarl
 from aiohttp.abc import AbstractCookieJar
@@ -13,6 +14,11 @@ from vchat.model import Contact
 from vchat.model import User
 from vchat.net.interface import NetHelperInterface, catch_exception
 from vchat.storage.login_info import LoginInfo
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 
 def _cookie_lookup(cookie_jar: AbstractCookieJar, key: str) -> str | None:
@@ -90,17 +96,17 @@ class NetHelperLoginMixin(NetHelperInterface, ABC):
             "referer": "https://wx.qq.com/?&lang=zh_CN&target=t",
         }
         async with self.session.get(
-            self.login_info.url, headers=headers, allow_redirects=False
+                self.login_info.url, headers=headers, allow_redirects=False
         ) as resp:
             text = await resp.text()
         # TODO: 优化
         self.login_info.url = self.login_info.url[: self.login_info.url.rfind("/")]
         for index_url, detailed_url in (
-            ("wx2.qq.com", ("file.wx2.qq.com", "webpush.wx2.qq.com")),
-            ("wx8.qq.com", ("file.wx8.qq.com", "webpush.wx8.qq.com")),
-            ("qq.com", ("file.wx.qq.com", "webpush.wx.qq.com")),
-            ("web2.wechat.com", ("file.web2.wechat.com", "webpush.web2.wechat.com")),
-            ("wechat.com", ("file.web.wechat.com", "webpush.web.wechat.com")),
+                ("wx2.qq.com", ("file.wx2.qq.com", "webpush.wx2.qq.com")),
+                ("wx8.qq.com", ("file.wx8.qq.com", "webpush.wx8.qq.com")),
+                ("qq.com", ("file.wx.qq.com", "webpush.wx.qq.com")),
+                ("web2.wechat.com", ("file.web2.wechat.com", "webpush.web2.wechat.com")),
+                ("wechat.com", ("file.web.wechat.com", "webpush.web.wechat.com")),
         ):
             file_url = f"https://{detailed_url[0]}/cgi-bin/mmwebwx-bin"
             sync_url = f"https://{detailed_url[1]}/cgi-bin/mmwebwx-bin"

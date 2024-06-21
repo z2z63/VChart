@@ -1,20 +1,25 @@
 import io
 from abc import ABC
 from collections.abc import Callable, Awaitable
-from typing import override, TYPE_CHECKING
-
-import yarl
+from typing import TYPE_CHECKING
 
 from vchat.net.interface import NetHelperInterface, catch_exception
 
 if TYPE_CHECKING:
     from vchat.model import RawMessage
+import sys
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
+import yarl
 
 
 class NetHelperDownloadMixin(NetHelperInterface, ABC):
     @override
     def _get_download_fn(
-        self, url: str, params: dict, headers: dict | None = None
+            self, url: str, params: dict, headers: dict | None = None
     ) -> Callable[..., Awaitable]:
         assert self.login_info.url is not None
         url = self.login_info.url + url
