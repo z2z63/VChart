@@ -13,6 +13,7 @@ if sys.version_info >= (3, 12):
 else:
     from typing_extensions import override
 
+
 class NetHelperFriendMixin(NetHelperInterface, ABC):
     @override
     async def update_friends(self, usernames: list[str]) -> AsyncGenerator[User, None]:

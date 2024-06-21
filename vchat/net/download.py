@@ -19,7 +19,7 @@ import yarl
 class NetHelperDownloadMixin(NetHelperInterface, ABC):
     @override
     def _get_download_fn(
-            self, url: str, params: dict, headers: dict | None = None
+        self, url: str, params: dict, headers: dict | None = None
     ) -> Callable[..., Awaitable]:
         assert self.login_info.url is not None
         url = self.login_info.url + url

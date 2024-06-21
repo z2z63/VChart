@@ -164,7 +164,7 @@ class CoreLoginMixin(CoreInterface, ABC):
                 self._alive = False
             elif code == "0":
                 await asyncio.sleep(5)
-                logger.info('heartbeat')
+                logger.info("heartbeat")
             else:
                 try:
                     msgs, contacts = await self._net_helper.get_msg()

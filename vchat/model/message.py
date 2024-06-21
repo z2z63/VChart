@@ -81,7 +81,7 @@ class Message:
             "to": self.to.todict(),
             "content": self.content.todict(),
             "message_id": self.message_id,
-            "chatroom_sender": None
-            if self.chatroom_sender is None
-            else self.chatroom_sender.todict(),
+            "chatroom_sender": (
+                None if self.chatroom_sender is None else self.chatroom_sender.todict()
+            ),
         }

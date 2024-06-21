@@ -171,7 +171,7 @@ class CoreMessageMixin(CoreInterface, ABC):
         return member, is_at_me
 
     @override
-    async def send_msg(self, msg: str, to_username: str)->str:
+    async def send_msg(self, msg: str, to_username: str) -> str:
         logger.debug("Request to send a text message to %s: %s" % (to_username, msg))
         return await self._net_helper.send_raw_msg(1, msg, to_username)
 
