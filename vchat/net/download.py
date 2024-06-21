@@ -53,12 +53,12 @@ class NetHelperDownloadMixin(NetHelperInterface, ABC):
         return self._get_download_fn("/webwxgetvideo", params, headers=headers)
 
     @override
-    def get_attach_download_fn(self, rmsg: "RawMessage"):
+    def get_attach_download_fn(self, rmsg: "RawMessage|dict[str, str]"):
         assert self.login_info.url is not None
         params: dict[str, str | None] = {
-            "sender": rmsg.from_username,
-            "mediaid": rmsg.media_id,
-            "filename": rmsg.file_name,
+            "sender": rmsg["FromUserName"],
+            "mediaid": rmsg["MediaId"],
+            "filename": rmsg["FileName"],
             "fromuser": self.login_info.wxuin,
             "pass_ticket": "undefined",
             "webwx_data_ticket": self.session.cookie_jar.filter_cookies(

@@ -1,4 +1,4 @@
-import asyncio
+import json
 from abc import ABC, abstractmethod
 from collections.abc import (
     AsyncGenerator,
@@ -11,7 +11,7 @@ from collections.abc import (
 from typing import Optional, Literal, ParamSpec, TypeVar, Any, BinaryIO
 
 import aiohttp
-from aiohttp import ClientError, ClientSession
+from aiohttp import ClientError
 
 from vchat import config
 from vchat.config import logger
@@ -24,7 +24,7 @@ P = ParamSpec("P")
 
 
 def catch_exception(
-    fn: Callable[P, Coroutine[Any, Any, T]]
+        fn: Callable[P, Coroutine[Any, Any, T]]
 ) -> Callable[P, Coroutine[Any, Any, T]]:
     async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         try:
@@ -46,17 +46,18 @@ def catch_exception(
 
 
 class NetHelperInterface(ABC):
-    def __init__(self, session: ClientSession):
-        self.session = session
-        self.session.headers.update({"User-Agent": config.USER_AGENT})
+    def __init__(self):
+        self.session = None
         self.login_info: LoginInfo = LoginInfo()
 
-    def __del__(self):
-        loop = asyncio.get_event_loop()
-        if not loop.is_running():
-            loop.run_until_complete(self.session.close())
-        else:
-            loop.create_task(self.session.close())
+    async def init(self):
+        self.session = aiohttp.ClientSession(
+            json_serialize=lambda s: json.dumps(s, ensure_ascii=False)
+        )
+        self.session.headers.update({"User-Agent": config.USER_AGENT})
+
+    async def close(self):
+        await self.session.close()
 
     @staticmethod
     @catch_exception
@@ -96,7 +97,7 @@ class NetHelperInterface(ABC):
 
     @abstractmethod
     async def update_batch_contact(
-        self, batch: int, callback: Callable
+            self, batch: int, callback: Callable
     ) -> tuple[Literal[0, 1], Iterable[Contact]]:
         pass
 
@@ -107,7 +108,7 @@ class NetHelperInterface(ABC):
 
     @abstractmethod
     async def get_detailed_member_info(
-        self, encry_chatroom_id: str, members: Collection[User]
+            self, encry_chatroom_id: str, members: Collection[User]
     ) -> AsyncGenerator[User, None]:
         async for member in self.get_detailed_member_info(encry_chatroom_id, members):
             yield member
@@ -139,7 +140,7 @@ class NetHelperInterface(ABC):
 
     @abstractmethod
     async def get_chatroom_member_head_img(
-        self, username: str, chatroom_id: str, fd: BinaryIO
+            self, username: str, chatroom_id: str, fd: BinaryIO
     ) -> None:
         pass
 
@@ -153,7 +154,7 @@ class NetHelperInterface(ABC):
 
     @abstractmethod
     async def delete_member_from_chatroom(
-        self, chatroom_username: str, members: list[User]
+            self, chatroom_username: str, members: list[User]
     ):
         pass
 
@@ -195,7 +196,7 @@ class NetHelperInterface(ABC):
 
     @abstractmethod
     def _get_download_fn(
-        self, url: str, params: dict, headers: dict | None = None
+            self, url: str, params: dict, headers: dict | None = None
     ) -> Callable[..., Awaitable]:
         pass
 
@@ -212,12 +213,12 @@ class NetHelperInterface(ABC):
         pass
 
     @abstractmethod
-    def get_attach_download_fn(self, rmsg: "RawMessage"):
+    def get_attach_download_fn(self, rmsg: "RawMessage|dict[str, str]"):
         pass
 
     @abstractmethod
     async def send_document(
-        self, file_name: str, media_id: str, file_size: int, to_username: str
+            self, file_name: str, media_id: str, file_size: int, to_username: str
     ) -> None:
         pass
 

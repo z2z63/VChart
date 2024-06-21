@@ -4,11 +4,14 @@ from abc import ABC
 from pathlib import Path
 from typing import override, Optional
 
-from aiohttp import ClientError
-
 from vchat.config import VERSION
 from vchat.core.interface import CoreInterface
-from vchat.errors import VNetworkError, VFileIOError, VUserCallbackError
+from vchat.errors import (
+    VNetworkError,
+    VFileIOError,
+    VUserCallbackError,
+    VOperationFailedError,
+)
 from vchat.model import Chatroom, User
 
 logger = logging.getLogger("vchat")
@@ -40,19 +43,13 @@ class CoreHotReloadMixin(CoreInterface, ABC):
         except IOError:
             logger.debug("No login status found, loading login status failed.")
             raise VFileIOError("No login status found, loading login status failed.")
-        if jar.get("version", "") != VERSION:
-            logger.debug(
-                f"you have updated vchat from {jar.get('version', 'old version')} to {VERSION}"
-                f", so cached status is ignored"
-            )
-            return False
 
         self._net_helper.load_login_info_from_pickle(jar["loginInfo"])
         self._net_helper.load_cookies(jar["cookies"])
         self._storage.loads(jar["storage"])
         try:
             rmsgs, contacts = await self._net_helper.get_msg()
-        except (ClientError, KeyError):
+        except VOperationFailedError:
             await self.logout()
             await self._load_last_login_status(jar["cookies"])
             logger.debug("server refused, loading login status failed.")

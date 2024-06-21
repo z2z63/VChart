@@ -3,7 +3,6 @@ from abc import ABC
 from collections.abc import AsyncGenerator
 from typing import override, BinaryIO
 
-from aiohttp import ClientResponse
 
 from vchat.errors import VOperationFailedError
 from vchat.model import User

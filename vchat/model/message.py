@@ -69,3 +69,14 @@ class Message:
 
     def __repr__(self):
         return f"<Message: {self.from_} -> {self.to}: {self.content}>"
+
+    def todict(self):
+        return {
+            "from_": self.from_.todict(),
+            "to": self.to.todict(),
+            "content": self.content.todict(),
+            "message_id": self.message_id,
+            "chatroom_sender": None
+            if self.chatroom_sender is None
+            else self.chatroom_sender.todict(),
+        }

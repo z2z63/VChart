@@ -103,7 +103,7 @@ class CoreRegisterMixin(CoreInterface, ABC):
 
         return _msg_register
 
-    async def _message_queue_consume_loop(self, debug=False):
+    async def _message_queue_consume_loop(self):
         logger.info("Start auto replying.")
 
         try:
@@ -116,10 +116,11 @@ class CoreRegisterMixin(CoreInterface, ABC):
         print("error!")
 
     @override
-    async def run(self, debug=False, exit_callback=None):
+    async def run(self, exit_callback=None):
         async with asyncio.TaskGroup() as tg:
-            tg.create_task(self._message_queue_consume_loop(debug))
+            tg.create_task(self._message_queue_consume_loop())
             tg.create_task(self.start_receiving(exit_callback))
+        await self._net_helper.close()
 
 
 def _conditional_wrapper(filter_types, fn) -> Callable[..., Awaitable]:

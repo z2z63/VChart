@@ -46,10 +46,11 @@ class CoreMessageMixin(CoreInterface, ABC):
         elif rmsg.from_username == self._storage.myname and rmsg.to_username in (
             "filehelper",
             "fmessage",
+            "weixin",
         ):
             #     自己发给特殊账号的消息
             params["to"] = self._storage.members.get(
-                rmsg.from_username, User(UserName=rmsg.from_username)
+                rmsg.to_username, User(UserName=rmsg.to_username)
             )
             assert self._storage.myname is not None
             params["from"] = self._storage.members[self._storage.myname]
@@ -72,10 +73,19 @@ class CoreMessageMixin(CoreInterface, ABC):
                 rmsg.from_username, User(UserName=rmsg.from_username)
             )
             params["to"] = self._storage.members[self._storage.myname]
-
+        elif rmsg.to_username == self._storage.myname:
+            # 特殊账号发给自己的消息
+            params["from"] = self._storage.members.get(
+                rmsg.from_username, User(UserName=rmsg.from_username)
+            )
+            params["to"] = self._storage.members[self._storage.myname]
         else:
             logger.warning("unknown message type: %s" % rmsg)
             logger.warning(json.dumps(rmsg._other))
+
+        rmsg.set_content(
+            utils.msg_formatter(rmsg.content)
+        )  # 微信没有使用unicode表示emoji，需要修改emoji显示
         assert params["from"] is not None
         assert params["to"] is not None
         return params["from"], params["to"], sender, is_at_me
@@ -86,7 +96,7 @@ class CoreMessageMixin(CoreInterface, ABC):
     ) -> AsyncGenerator[Message, None]:
         with open("raw_message.jsonl", "a") as f:
             for m in rmsgs:
-                f.write(json.dumps(m._other) + "\n")
+                f.write(json.dumps(m._other, ensure_ascii=False) + "\n")
                 (
                     from_contact,
                     to_contact,
@@ -125,6 +135,7 @@ class CoreMessageMixin(CoreInterface, ABC):
             chatroom_username = rmsg["ToUserName"]
         else:
             raise NotImplementedError
+            # TODO: 发送文本为空字符串时会接受到消息指示错误
         # 如果是新群聊，需要加载群聊信息
         if chatroom_username not in self._storage.chatrooms:
             await self.update_chatroom(chatroom_username)
@@ -151,15 +162,13 @@ class CoreMessageMixin(CoreInterface, ABC):
             else:
                 is_at_me = False
 
-        content = utils.msg_formatter(content)
-        rmsg.set_content(content)  # 微信没有使用unicode表示emoji，需要修改emoji显示
         assert member is not None
         return member, is_at_me
 
     @override
-    async def send_msg(self, msg: str, to_username: str):
+    async def send_msg(self, msg: str, to_username: str)->str:
         logger.debug("Request to send a text message to %s: %s" % (to_username, msg))
-        await self._net_helper.send_raw_msg(1, msg, to_username)
+        return await self._net_helper.send_raw_msg(1, msg, to_username)
 
     @override
     async def send_file(
@@ -203,9 +212,10 @@ class CoreMessageMixin(CoreInterface, ABC):
                     file_name, fd, to_username
                 )
         assert file_size is not None
-        return await self._net_helper.send_document(
+        msg_id = await self._net_helper.send_document(
             file_name, media_id, file_size, to_username
         )
+        return msg_id, media_id, file_size
 
     @override
     async def send_image(
@@ -215,7 +225,7 @@ class CoreMessageMixin(CoreInterface, ABC):
         fd: BinaryIO | None = None,
         media_id: str | None = None,
         file_name: str | None = None,
-    ):
+    ) -> str:
         logger.debug(
             "Request to send a image(mediaId: %s) to %s: %s"
             % (media_id, to_username, file_path)

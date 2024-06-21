@@ -147,12 +147,13 @@ class NetHelperSendMixin(NetHelperInterface, ABC):
 
     async def send_document(
         self, file_name: str, media_id: str, file_size: int, to_username: str
-    ) -> None:
+    ) -> str:
         if "." in file_name:
             suffix = file_name.split(".")[-1]
         else:  # 处理没有扩展名的情况
             suffix = ""
         url = "%s/webwxsendappmsg?fun=async&f=json" % self.login_info.url
+        msg_id = str(int(time.time() * 1e4))
         data = {
             "BaseRequest": self.login_info.base_request,
             "Msg": {
@@ -165,10 +166,8 @@ class NetHelperSendMixin(NetHelperInterface, ABC):
                 ),
                 "FromUserName": self.login_info.myname,
                 "ToUserName": to_username,
-                "LocalID": int(time.time() * 1e4),
-                "ClientMsgId": int(
-                    time.time() * 1e4
-                ),  # TODO: 尝试改进client_msg_id和local_id
+                "LocalID": msg_id,
+                "ClientMsgId": msg_id
             },
             "Scene": 0,
         }
@@ -176,10 +175,12 @@ class NetHelperSendMixin(NetHelperInterface, ABC):
             dic = await resp.json(content_type=None)
             if dic["BaseResponse"]["Ret"] != 0:
                 raise VOperationFailedError("发送文件失败")
+        return msg_id
 
-    async def send_image(self, media_id: str, to_username: str) -> None:
+    async def send_image(self, media_id: str, to_username: str) -> str:
         assert self.login_info.url is not None
         url = self.login_info.url + "/webwxsendmsgimg?fun=async&f=json"
+        msg_id = str(int(time.time() * 1e4))
         data = {
             "BaseRequest": self.login_info.base_request,
             "Msg": {
@@ -187,8 +188,8 @@ class NetHelperSendMixin(NetHelperInterface, ABC):
                 "MediaId": media_id,
                 "FromUserName": self.login_info.myname,
                 "ToUserName": to_username,
-                "LocalID": int(time.time() * 1e4),
-                "ClientMsgId": int(time.time() * 1e4),
+                "LocalID": msg_id,
+                "ClientMsgId": msg_id,
             },
             "Scene": 0,
         }
@@ -197,10 +198,12 @@ class NetHelperSendMixin(NetHelperInterface, ABC):
             dic = await resp.json(content_type=None)
             if dic["BaseResponse"]["Ret"] != 0:
                 raise VOperationFailedError("发送图片失败")
+        return msg_id
 
     async def send_gif(self, media_id: str, to_username: str) -> None:
         assert self.login_info.url is not None
         url = self.login_info.url + "/webwxsendemoticon?fun=sys"
+        msg_id = str(int(time.time() * 1e4))
         data = {
             "BaseRequest": self.login_info.base_request,
             "Msg": {
@@ -209,8 +212,8 @@ class NetHelperSendMixin(NetHelperInterface, ABC):
                 "MediaId": media_id,
                 "FromUserName": self.login_info.myname,
                 "ToUserName": to_username,
-                "LocalID": int(time.time() * 1e4),
-                "ClientMsgId": int(time.time() * 1e4),
+                "LocalID": msg_id,
+                "ClientMsgId": msg_id,
             },
             "Scene": 0,
         }
@@ -218,12 +221,14 @@ class NetHelperSendMixin(NetHelperInterface, ABC):
             dic = await resp.json(content_type=None)
             if dic["BaseResponse"]["Ret"] != 0:
                 raise VOperationFailedError("发送gif失败")
+        return msg_id
 
-    async def send_video(self, media_id: str, to_username: str) -> None:
+    async def send_video(self, media_id: str, to_username: str) -> str:
         url = "%s/webwxsendvideomsg?fun=async&f=json&pass_ticket=%s" % (
             self.login_info.url,
             self.login_info.pass_ticket,
         )
+        msg_id = str(int(time.time() * 1e4))
         data = {
             "BaseRequest": self.login_info.base_request,
             "Msg": {
@@ -231,8 +236,8 @@ class NetHelperSendMixin(NetHelperInterface, ABC):
                 "MediaId": media_id,
                 "FromUserName": self.login_info.myname,
                 "ToUserName": to_username,
-                "LocalID": int(time.time() * 1e4),
-                "ClientMsgId": int(time.time() * 1e4),
+                "LocalID": msg_id,
+                "ClientMsgId": msg_id,
             },
             "Scene": 0,
         }
@@ -241,11 +246,13 @@ class NetHelperSendMixin(NetHelperInterface, ABC):
             dic = await resp.json(content_type=None)
             if dic["BaseResponse"]["Ret"] != 0:
                 raise VOperationFailedError("发送视频失败")
+        return msg_id
 
-    async def send_raw_msg(self, msg_type: int, content: str, to_username: str) -> None:
+    async def send_raw_msg(self, msg_type: int, content: str, to_username: str) -> str:
         # 有些帐号不能给自己发送消息
         assert self.login_info.url is not None
         url = self.login_info.url + "/webwxsendmsg"
+        msg_id = str(int(time.time() * 1e4))
         data = {
             "BaseRequest": self.login_info.base_request,
             "Msg": {
@@ -253,8 +260,8 @@ class NetHelperSendMixin(NetHelperInterface, ABC):
                 "Content": content,
                 "FromUserName": self.login_info.myname,
                 "ToUserName": to_username,
-                "LocalID": int(time.time() * 1e4),
-                "ClientMsgId": int(time.time() * 1e4),
+                "LocalID": msg_id,
+                "ClientMsgId": msg_id,
             },
             "Scene": 0,
         }
@@ -262,6 +269,7 @@ class NetHelperSendMixin(NetHelperInterface, ABC):
             dic = await resp.json(content_type=None)
             if dic["BaseResponse"]["Ret"] != 0:
                 raise VOperationFailedError("发送消息失败")
+        return msg_id
 
     async def revoke(self, msg_id: str, to_username: str, local_id=None) -> None:
         assert self.login_info.url is not None

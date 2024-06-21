@@ -11,7 +11,7 @@ from pyqrcode import QRCode
 
 from vchat import config, utils
 from vchat.core.interface import CoreInterface
-from vchat.errors import VNetworkError, VUserCallbackError
+from vchat.errors import VNetworkError, VUserCallbackError, VOperationFailedError
 from vchat.model import RawMessage
 from vchat.model import Chatroom, User, Contact
 
@@ -62,7 +62,7 @@ class CoreLoginMixin(CoreInterface, ABC):
         pic_path = pic_path or config.DEFAULT_QR
         qrStorage = io.BytesIO()
         qrCode = QRCode("https://login.weixin.qq.com/l/" + uuid)
-        qrCode.png(qrStorage, scale=10)
+        qrCode.svg(qrStorage, scale=10)
         if hasattr(qr_callback, "__call__"):
             await qr_callback(uuid=uuid, status="0", qrcode=qrStorage.getvalue())
         else:
@@ -158,11 +158,11 @@ class CoreLoginMixin(CoreInterface, ABC):
                 self._alive = False
             elif code == "0":
                 await asyncio.sleep(5)
-                print("----------")
+                logger.info('heartbeat')
             else:
                 try:
                     msgs, contacts = await self._net_helper.get_msg()
-                except VNetworkError:
+                except VOperationFailedError:
                     retryCount += 1
                     logger.error(traceback.format_exc())
                     if self._receiving_retry_count < retryCount:

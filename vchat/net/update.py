@@ -9,9 +9,9 @@ from aiohttp import ClientError
 
 from vchat import config
 from vchat.config import logger
-from vchat.errors import VNetworkError
+from vchat.errors import VNetworkError, VOperationFailedError
 from vchat.model import Contact, RawMessage
-from vchat.net.interface import NetHelperInterface
+from vchat.net.interface import NetHelperInterface, catch_exception
 
 
 class NetHelperUpdateMixin(NetHelperInterface, ABC):
@@ -61,6 +61,7 @@ class NetHelperUpdateMixin(NetHelperInterface, ABC):
                 raise VNetworkError("Unexpected sync check result: %s" % text)
             return pm.group(2)
 
+    @catch_exception
     async def get_msg(self) -> tuple[Iterable[RawMessage], Iterable[Contact]]:
         assert self.login_info.url is not None
         self.login_info.deviceid = "e" + str(random.random())[2:17]
@@ -80,7 +81,7 @@ class NetHelperUpdateMixin(NetHelperInterface, ABC):
         ) as resp:
             dic = await resp.json(content_type=None)
             if dic["BaseResponse"]["Ret"] != 0:
-                return [], []
+                raise VOperationFailedError("获取新消息失败，请重新登录")
             self.login_info.SyncKey = dic["SyncKey"]
             self.login_info.synckey = "|".join(
                 [

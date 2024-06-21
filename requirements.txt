@@ -1,3 +1,4 @@
 pyqrcode~=1.2.1
 aiohttp~=3.9.1
 yarl~=1.9.4
+lxml~=5.2.2

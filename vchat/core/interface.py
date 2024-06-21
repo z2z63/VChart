@@ -12,10 +12,10 @@ from vchat.storage import Storage
 
 
 class CoreInterface(ABC):
-    def __init__(self, net_helper):
+    def __init__(self):
         self._alive = False
         self._storage: Storage = Storage()
-        self._net_helper: NetHelper = net_helper
+        self._net_helper: NetHelper = NetHelper()
         self._uuid: Optional[str] = None
         self._function_dict: dict[ContactTypes, list[Callable[..., Awaitable]]] = {
             ContactTypes.USER: [],
@@ -99,6 +99,11 @@ class CoreInterface(ABC):
 
     @property
     @abstractmethod
+    def me(self) -> User:
+        ...
+
+    @property
+    @abstractmethod
     def chatrooms(self):
         ...
 
@@ -127,7 +132,7 @@ class CoreInterface(ABC):
         pic_path: Optional[Path] = None,
         fd: Optional[BinaryIO] = None,
     ):
-        ...
+        pass
 
     @abstractmethod
     def create_chatroom(self, members, topic=""):
@@ -148,7 +153,7 @@ class CoreInterface(ABC):
         pass
 
     @abstractmethod
-    async def send_msg(self, msg: str, to_username: str):
+    async def send_msg(self, msg: str, to_username: str)->str:
         pass
 
     @abstractmethod
@@ -171,7 +176,7 @@ class CoreInterface(ABC):
         fd: Optional[BinaryIO] = None,
         media_id: Optional[str] = None,
         file_name: Optional[str] = None,
-    ):
+    ) -> str:
         pass
 
     @abstractmethod
@@ -218,7 +223,7 @@ class CoreInterface(ABC):
         pass
 
     @abstractmethod
-    def run(self, debug=True):
+    def run(self, exit_callback=None):
         pass
 
     @abstractmethod

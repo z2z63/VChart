@@ -36,7 +36,7 @@ class NetHelperChatroomMixin(NetHelperInterface, ABC):
             "skey": self.login_info.skey,
             "type": "big",
         }
-        async with self.session.get(url, params=params, stream=True) as resp:
+        async with self.session.get(url, params=params) as resp:
             async for chunk in resp.content.iter_chunked(1024):
                 fd.write(chunk)
 
@@ -54,7 +54,7 @@ class NetHelperChatroomMixin(NetHelperInterface, ABC):
             "skey": self.login_info.skey,
             "type": "big",
         }
-        async with self.session.get(url, params=params, stream=True) as resp:
+        async with self.session.get(url, params=params) as resp:
             async for chunk in resp.content.iter_chunked(1024):
                 fd.write(chunk)
 

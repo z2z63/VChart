@@ -123,6 +123,11 @@ class CoreContactMixin(CoreInterface, ABC):
 
     @override
     @property
+    def me(self) -> User:
+        return self._net_helper.login_info.user
+
+    @override
+    @property
     def chatrooms(self) -> dict[str, Chatroom]:
         return self._storage.chatrooms
 

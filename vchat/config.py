@@ -9,7 +9,7 @@ VERSION = "1.5.0.dev"
 logger = logging.getLogger("vchat")
 BASE_URL = "https://login.weixin.qq.com"
 OS = sys.platform  # Windows, Linux, Darwin
-DEFAULT_QR = "QR.png"
+DEFAULT_QR = "QR.svg"
 TIMEOUT = 120
 
 USER_AGENT = (
@@ -33,10 +33,5 @@ UOS_PATCH_EXTSPAM = (
     "+g2TfywJjeEcpSZaP4Q3YV5HG8D6UjWA4GSkBKculWpdCMadx0usMomsSS"
     "/74QgpYqcPkmamB4nVv1JxczYITIqItIKjD35IGKAUwAA=="
 )
-try:
-    with open("deviceid.txt", "r") as f:
-        DEVICEID = f.read()
-except FileNotFoundError:
-    DEVICEID = "e" + str(random.random())[2:17]
-    with open("deviceid.txt", "w") as f:
-        f.write(DEVICEID)
+
+DEVICEID = "e" + str(random.random())[2:17]
