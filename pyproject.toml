@@ -17,7 +17,8 @@ dependencies = [
     "pyqrcode~=1.2.1",
     "aiohttp~=3.9.1",
     "yarl~=1.9.4",
-    "lxml~=5.2.2"
+    "lxml~=5.2.2",
+    "typing-extensions;python_version<'3.12'",
 ]
 keywords = ["wechat", "wexin", "itchat", "itchat-uos"]
 [project.urls]
