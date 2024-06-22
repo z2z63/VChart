@@ -3,9 +3,6 @@ import logging
 import random
 import sys
 
-
-VERSION = "1.5.0.dev"
-
 logger = logging.getLogger("vchat")
 BASE_URL = "https://login.weixin.qq.com"
 OS = sys.platform  # Windows, Linux, Darwin

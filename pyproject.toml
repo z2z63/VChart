@@ -1,0 +1,29 @@
+[project]
+name = "VChat"
+version = "1.0.0"
+authors = [
+  { name="z2z63", email="vituralfuture@gmail.com" },
+]
+description = "A wechat personal account interface"
+readme = "README.md"
+license = {text = "MIT License"}
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pyqrcode~=1.2.1",
+    "aiohttp~=3.9.1",
+    "yarl~=1.9.4",
+    "lxml~=5.2.2"
+]
+keywords = ["wechat", "wexin", "itchat", "itchat-uos"]
+[project.urls]
+Homepage = "https://github.com/z2z63/VChat"
+Issues = "https://github.com/z2z63/VChat/issues"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
