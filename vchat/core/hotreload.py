@@ -4,7 +4,7 @@ from abc import ABC
 from pathlib import Path
 from typing import Optional
 
-from vchat.config import VERSION
+
 from vchat.core.interface import CoreInterface
 from vchat.errors import (
     VNetworkError,
@@ -26,7 +26,6 @@ class CoreHotReloadMixin(CoreInterface, ABC):
     async def dump_login_status(self, file_path: Optional[Path] = None) -> None:
         file_path = file_path or self._hot_reload_path
         status = {
-            "version": VERSION,
             "loginInfo": self._net_helper.login_info,
             "cookies": self._net_helper.get_dumpable_cookies(),
             "storage": self._storage.dumps(),
