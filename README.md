@@ -45,7 +45,17 @@ if __name__ == "__main__":
 2. 发送文本，图片，视频，文件
 3. 收发好友消息和群聊消息
 
-更多介绍详见doc目录
+# 文档
+- [联系人(Contact)](./docs/model.md#联系人contact)
+- [消息(Message)](./docs/model.md#消息message)
+- [内容(Content)](./docs/model.md#内容content)
+# QA
+- VChat支持同步调用吗？  
+不支持，因为异步协程是更简单的并发模型，符合结构化并发，而且python的同步和异步差别很大，无法一份代码同时供同步异步调用  
+
+- 如何将VChat集成到我的项目中？  
+异步：使用`TaskGroup`等待`core.run`和你的异步主函数即可  
+同步：创建一个线程，使用`asyncio.run`运行`vchat`即可  
 # 免责声明
 
 使用本项目默认用户已经阅读并知悉[微信个人账号使用规范](https://weixin.qq.com/cgi-bin/readtemplate?&t=page/agreement/personal_account&lang=zh_CN)
