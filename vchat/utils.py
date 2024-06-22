@@ -3,6 +3,8 @@ import os
 import re
 import subprocess
 import sys
+from collections.abc import Iterable
+from typing import Any
 
 from vchat import config
 from vchat.model import Contact
@@ -136,3 +138,16 @@ def update_info_dict(old_info_dict, new_info_dict):
             pass  # these values will be updated somewhere else
         elif old_info_dict.get(key) is None or value not in (None, "", "0", 0):
             old_info_dict[key] = value
+
+
+def batch(data: Iterable[Any], n: int = 1):
+    ret_val = []
+    for i, item in enumerate(data):
+        if (i + 1) % n == 0:
+            yield ret_val
+            ret_val = []
+        else:
+            ret_val.append(item)
+    if len(ret_val) != 0:
+        yield ret_val
+    return

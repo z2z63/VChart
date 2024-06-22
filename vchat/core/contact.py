@@ -1,7 +1,7 @@
 import copy
 import sys
 from abc import ABC
-from itertools import batched
+
 from pathlib import Path
 from typing import Optional, BinaryIO, overload
 
@@ -13,8 +13,10 @@ from vchat.model import Chatroom, User, MassivePlatform, Contact
 
 if sys.version_info >= (3, 12):
     from typing import override
+    from itertools import batched
 else:
     from typing_extensions import override
+    from vchat.utils import batch as batched
 
 from vchat.config import logger
 

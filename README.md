@@ -49,7 +49,10 @@ if __name__ == "__main__":
 - [联系人(Contact)](./docs/model.md#联系人contact)
 - [消息(Message)](./docs/model.md#消息message)
 - [内容(Content)](./docs/model.md#内容content)
-# QA
+
+## 兼容性
+因为使用了新的union语法，需要python3.10及以上版本，未来会去除这个限制
+## QA
 - VChat支持同步调用吗？  
 不支持，因为异步协程是更简单的并发模型，符合结构化并发，而且python的同步和异步差别很大，无法一份代码同时供同步异步调用  
 
