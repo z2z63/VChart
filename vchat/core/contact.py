@@ -1,5 +1,4 @@
 import copy
-import logging
 import sys
 from abc import ABC
 from itertools import batched
@@ -17,7 +16,7 @@ if sys.version_info >= (3, 12):
 else:
     from typing_extensions import override
 
-logger = logging.getLogger("vchat")
+from vchat.config import logger
 
 
 class CoreContactMixin(CoreInterface, ABC):

@@ -1,6 +1,5 @@
 import asyncio
 import io
-import logging
 import os
 import sys
 import traceback
@@ -8,11 +7,12 @@ from abc import ABC
 from collections.abc import Iterable
 from typing import Optional
 
+from aiohttp.client_exceptions import ClientResponseError
 from pyqrcode import QRCode
 
 from vchat import config, utils
 from vchat.core.interface import CoreInterface
-from vchat.errors import VUserCallbackError, VOperationFailedError
+from vchat.errors import VUserCallbackError, VOperationFailedError, VLoginError
 from vchat.model import Chatroom, User, Contact
 from vchat.model import RawMessage
 
@@ -21,7 +21,7 @@ if sys.version_info >= (3, 12):
 else:
     from typing_extensions import override
 
-logger = logging.getLogger("vchat")
+from vchat.config import logger
 
 
 class CoreLoginMixin(CoreInterface, ABC):
@@ -75,7 +75,8 @@ class CoreLoginMixin(CoreInterface, ABC):
             with open(pic_path, "wb") as f:
                 f.write(qrStorage.getvalue())
             if enable_cmd_qr:
-                utils.print_cmd_qr(qrCode.text(1), enable_cmd_qr=enable_cmd_qr)
+                logger.critical("Please scan the QR code to log in.")
+                logger.critical(qrCode.terminal())
             else:
                 utils.print_qr(pic_path)
         return qrStorage
@@ -104,16 +105,20 @@ class CoreLoginMixin(CoreInterface, ABC):
             await self._net_helper.push_login() or await self._net_helper.get_qr_uuid()
         )
         await self.get_qr(self.uuid, enable_cmd_qr, pic_path, qr_callback)
-
-        while True:
-            code, text = await self._net_helper.check_qr_scan_status(self.uuid)
-            if code == "201":
-                logger.info("Please press confirm on your phone.")
-                await asyncio.sleep(2)
-            elif code == "200":
-                return text
-            else:
-                raise RuntimeError("unknown status: %s" % code)
+        for _ in range(5):  # 重试五次
+            while True:
+                code, text = await self._net_helper.check_qr_scan_status(self.uuid)
+                if code == "201":
+                    logger.info("Please press confirm on your phone.")
+                    await asyncio.sleep(2)
+                elif code == "200":
+                    return text
+                elif code == "408":  # 超时
+                    logger.warning("QR code scan timeout, retrying...")
+                    break
+                else:
+                    raise RuntimeError("unknown status: %s" % code)
+        raise VLoginError("QR code scan exceed the limit. Please try again.")
 
     async def _web_init(self):
         """
@@ -159,7 +164,11 @@ class CoreLoginMixin(CoreInterface, ABC):
     async def _maintain_loop(self, exit_callback):
         retryCount = 0
         while self._alive:
-            code = await self._net_helper.sync_check()
+            try:
+                code = await self._net_helper.sync_check()
+            except ClientResponseError as e:
+                logger.info(e)
+                continue
             if code is None:
                 self._alive = False
             elif code == "0":

@@ -1,5 +1,4 @@
 import html
-import logging
 import os
 import re
 import subprocess
@@ -7,8 +6,7 @@ import sys
 
 from vchat import config
 from vchat.model import Contact
-
-logger = logging.getLogger("vchat")
+from vchat.config import logger
 
 emojiRegex = re.compile(r'<span class="emoji emoji(.{1,10})"></span>')
 
@@ -94,20 +92,6 @@ def print_qr(file_path):
         subprocess.call(["explorer", file_path])
     else:
         subprocess.call(["open", file_path])
-
-
-def print_cmd_qr(qr_text, white=BLOCK, black="  ", enable_cmd_qr=True):
-    blockCount = int(enable_cmd_qr)
-    if abs(blockCount) == 0:
-        blockCount = 1
-    white *= abs(blockCount)
-    if blockCount < 0:
-        white, black = black, white
-    sys.stdout.write(" " * 50 + "\r")
-    sys.stdout.flush()
-    qr = qr_text.replace("0", white).replace("1", black)
-    sys.stdout.write(qr)
-    sys.stdout.flush()
 
 
 def search_dict_list(contact_list: list["Contact"], key, value):

@@ -1,5 +1,4 @@
 import json
-import logging
 import re
 import sys
 from abc import ABC
@@ -18,7 +17,7 @@ if sys.version_info >= (3, 12):
     from typing import override
 else:
     from typing_extensions import override
-logger = logging.getLogger("vchat")
+from vchat.config import logger
 
 
 class CoreMessageMixin(CoreInterface, ABC):
@@ -99,22 +98,20 @@ class CoreMessageMixin(CoreInterface, ABC):
     async def _produce_msg(
         self, rmsgs: Iterable[RawMessage]
     ) -> AsyncGenerator[Message, None]:
-        with open("raw_message.jsonl", "a") as f:
-            for m in rmsgs:
-                f.write(json.dumps(m._other, ensure_ascii=False) + "\n")
-                (
-                    from_contact,
-                    to_contact,
-                    chatroom_sender,
-                    is_at_me,
-                ) = await self._parse_raw_message_contact(m)
-                content = Content.build_from_content_trimmed_raw_message(
-                    m, self._net_helper, is_at_me
-                )
-                msg = Message(
-                    from_contact, to_contact, content, m["MsgId"], chatroom_sender
-                )
-                yield msg
+        for m in rmsgs:
+            (
+                from_contact,
+                to_contact,
+                chatroom_sender,
+                is_at_me,
+            ) = await self._parse_raw_message_contact(m)
+            content = Content.build_from_content_trimmed_raw_message(
+                m, self._net_helper, is_at_me
+            )
+            msg = Message(
+                from_contact, to_contact, content, m["MsgId"], chatroom_sender
+            )
+            yield msg
 
     async def _produce_group_chat(self, rmsg: RawMessage) -> tuple[User, bool]:
         """
@@ -239,8 +236,10 @@ class CoreMessageMixin(CoreInterface, ABC):
             error_msg = f"cannot specify which file to send: file_path:{file_path} fd:{fd} media_id:{media_id}"
             logger.warning(error_msg)
             raise VMalformedParameterError(error_msg)
-
-        file_name = file_name or file_path.name or "default.png"  # type: ignore
+        if file_path is not None:
+            file_name = file_name or file_path.name or "default.png"
+        else:
+            file_name = file_name or "default.png"
         if media_id is None:
             if file_path is not None:
                 with file_path.open("rb") as fd:
@@ -249,7 +248,7 @@ class CoreMessageMixin(CoreInterface, ABC):
                     )
             else:
                 media_id, file_size = await self._net_helper.upload_file(
-                    file_name, fd, to_username  # type: ignore
+                    file_name, fd, to_username
                 )
         return await self._net_helper.send_image(media_id, to_username)
 

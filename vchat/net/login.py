@@ -22,9 +22,12 @@ else:
 
 
 def _cookie_lookup(cookie_jar: AbstractCookieJar, key: str) -> str | None:
-    for cookie in cookie_jar:
-        if key == cookie.key:
-            return cookie.value
+    try:
+        for cookie in cookie_jar:
+            if key == cookie.key:
+                return cookie.value
+    except ValueError as e:
+        pass
     return None
 
 

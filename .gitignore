@@ -1,7 +1,6 @@
-build/*
-dist/*
-tests/*
-itchat.egg-info/*
+build/
+dist/
+tests/
 *.pyc
 *.pkl
 *.swp
@@ -11,3 +10,4 @@ QR.jpg
 .DS_Store
 myexample
 .idea
+VChat.egg-info/
