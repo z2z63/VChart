@@ -1,6 +1,6 @@
 [project]
 name = "VChat"
-version = "1.0.0"
+version = "1.0.1"
 authors = [
   { name="z2z63", email="vituralfuture@gmail.com" },
 ]
