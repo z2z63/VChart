@@ -40,7 +40,7 @@ class CoreRegisterMixin(CoreInterface, ABC):
             self._hot_reload_path = status_storage_path
         if hot_reload:
             try:
-                await self.load_login_status(
+                await self._load_login_status(
                     status_storage_path,
                     login_callback=login_callback,
                 )
@@ -48,17 +48,17 @@ class CoreRegisterMixin(CoreInterface, ABC):
             except VChatError as e:
                 logger.warning("hot reload failed\n" + str(e))
 
-        await self.login(
+        await self._login(
             enable_cmd_qr=enable_cmd_qr,
             pic_path=pic_path,
             qr_callback=qr_callback,
             login_callback=login_callback,
         )
         if hot_reload:
-            await self.dump_login_status(self._hot_reload_path)
+            await self._dump_login_status(self._hot_reload_path)
 
     @override
-    async def configured_reply(self):
+    async def _configured_reply(self):
         """determine the type of message and reply if its method is defined
         however, I use a strange way to determine whether a msg is from massive platform
         I haven't found a better solution here
@@ -110,7 +110,7 @@ class CoreRegisterMixin(CoreInterface, ABC):
 
         try:
             while True:
-                await self.configured_reply()
+                await self._configured_reply()
         except KeyboardInterrupt:
             self._alive = False
             logger.debug("vchat received an ^C and exit.")
@@ -119,9 +119,16 @@ class CoreRegisterMixin(CoreInterface, ABC):
 
     @override
     async def run(self, exit_callback=None):
-        async with asyncio.TaskGroup() as tg:
-            tg.create_task(self._message_queue_consume_loop())
-            tg.create_task(self.start_receiving(exit_callback))
+        # `TaskGroup` is unavailable before 3.11
+        # async with asyncio.TaskGroup() as tg:
+        #     tg.create_task(self._message_queue_consume_loop())
+        #     tg.create_task(self.start_receiving(exit_callback))
+        # await self._net_helper.close()
+
+        await asyncio.gather(
+            (self._message_queue_consume_loop()),
+            (self.start_receiving(exit_callback)),
+        )
         await self._net_helper.close()
 
 

@@ -23,7 +23,7 @@ from vchat.config import logger
 
 class CoreHotReloadMixin(CoreInterface, ABC):
     @override
-    async def dump_login_status(self, file_path: Optional[Path] = None) -> None:
+    async def _dump_login_status(self, file_path: Optional[Path] = None) -> None:
         file_path = file_path or self._hot_reload_path
         status = {
             "loginInfo": self._net_helper.login_info,
@@ -39,7 +39,7 @@ class CoreHotReloadMixin(CoreInterface, ABC):
         logger.debug("Dump login status for hot reload successfully.")
 
     @override
-    async def load_login_status(self, file_path, login_callback=None):
+    async def _load_login_status(self, file_path, login_callback=None):
         try:
             with open(file_path, "rb") as f:
                 jar = pickle.load(f)

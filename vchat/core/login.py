@@ -26,7 +26,7 @@ from vchat.config import logger
 
 class CoreLoginMixin(CoreInterface, ABC):
     @override
-    async def login(
+    async def _login(
         self,
         enable_cmd_qr=False,
         pic_path=None,

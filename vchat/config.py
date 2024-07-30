@@ -5,7 +5,7 @@ import sys
 
 logger = logging.getLogger("vchat")
 BASE_URL = "https://login.weixin.qq.com"
-OS = sys.platform  # Windows, Linux, Darwin
+OS = sys.platform  # linux, win32,darwin
 DEFAULT_QR = "QR.svg"
 TIMEOUT = 120
 

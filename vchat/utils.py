@@ -12,18 +12,9 @@ from vchat.config import logger
 
 emojiRegex = re.compile(r'<span class="emoji emoji(.{1,10})"></span>')
 
-try:
-    b = "\u2588"
-    sys.stdout.write(b + "\r")
-    sys.stdout.flush()
-except UnicodeEncodeError:
-    BLOCK = "MM"
-else:
-    BLOCK = b
-
 
 def clear_screen():
-    os.system("cls" if config.OS == "Windows" else "clear")
+    os.system("cls" if config.OS == "win32" else "clear")
 
 
 def emoji_formatter(text: str) -> str:
@@ -90,10 +81,12 @@ def msg_formatter(text):
 def print_qr(file_path):
     if config.OS == "linux":
         subprocess.call(["xdg-open", file_path])
-    elif config.OS == "windows":
+    elif config.OS == "win32":
         subprocess.call(["explorer", file_path])
-    else:
+    elif config.OS == "darwin":
         subprocess.call(["open", file_path])
+    else:
+        raise NotImplementedError
 
 
 def search_dict_list(contact_list: list["Contact"], key, value):

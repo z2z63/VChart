@@ -22,6 +22,10 @@ else:
 
 
 def _cookie_lookup(cookie_jar: AbstractCookieJar, key: str) -> str | None:
+    # cookie_jar在iter时自动完成过期，此时报错
+    #     for (domain, path), cookie in self._cookies.items():
+    #         ^^^^^^^^^^^^^^
+    # ValueError: too many values to unpack (expected 2)
     try:
         for cookie in cookie_jar:
             if key == cookie.key:
@@ -198,6 +202,7 @@ class NetHelperLoginMixin(NetHelperInterface, ABC):
         self.session.cookie_jar._cookies = (
             cookie  # 因为aiohttp限制，为了将所有数据都保存在一个文件中
         )
+        _cookie_lookup(self.session.cookie_jar, "wxuin")
 
     @override
     def get_dumpable_cookies(self):

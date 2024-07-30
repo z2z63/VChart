@@ -49,6 +49,7 @@ if __name__ == "__main__":
 - [联系人(Contact)](./docs/model.md#联系人contact)
 - [消息(Message)](./docs/model.md#消息message)
 - [内容(Content)](./docs/model.md#内容content)
+- [收发消息](./docs/send.md#收发消息)
 
 ## 兼容性
 因为使用了新的union语法，需要python3.10及以上版本，未来会去除这个限制

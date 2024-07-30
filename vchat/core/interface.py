@@ -27,7 +27,7 @@ class CoreInterface(ABC):
         self._receiving_retry_count = 5
 
     @abstractmethod
-    def login(
+    def _login(
         self,
         enable_cmd_qr=False,
         pic_path=None,
@@ -89,40 +89,32 @@ class CoreInterface(ABC):
         pass
 
     @abstractmethod
-    async def get_contact(self, update=False):
-        ...
+    async def get_contact(self, update=False): ...
 
     @property
     @abstractmethod
-    def friends(self) -> dict[str, Contact]:
-        ...
+    def friends(self) -> dict[str, Contact]: ...
 
     @property
     @abstractmethod
-    def me(self) -> User:
-        ...
+    def me(self) -> User: ...
 
     @property
     @abstractmethod
-    def chatrooms(self):
-        ...
+    def chatrooms(self): ...
 
     @property
     @abstractmethod
-    def mps(self) -> dict[str, MassivePlatform]:
-        ...
+    def mps(self) -> dict[str, MassivePlatform]: ...
 
     @abstractmethod
-    def set_alias(self, username: str, alias: str):
-        ...
+    def set_alias(self, username: str, alias: str): ...
 
     @abstractmethod
-    def set_pinned(self, username: str, is_pinned=True):
-        ...
+    def set_pinned(self, username: str, is_pinned=True): ...
 
     @abstractmethod
-    async def accept_friend(self, username: str, v4: str, auto_update=True):
-        ...
+    async def accept_friend(self, username: str, v4: str, auto_update=True): ...
 
     @abstractmethod
     async def get_head_img(
@@ -135,16 +127,13 @@ class CoreInterface(ABC):
         pass
 
     @abstractmethod
-    def create_chatroom(self, members, topic=""):
-        ...
+    def create_chatroom(self, members, topic=""): ...
 
     @abstractmethod
-    def set_chatroom_name(self, chatroom_username, name):
-        ...
+    def set_chatroom_name(self, chatroom_username, name): ...
 
     @abstractmethod
-    def delete_member_from_chatroom(self, chatroom_username, members):
-        ...
+    def delete_member_from_chatroom(self, chatroom_username, members): ...
 
     @abstractmethod
     async def add_member_into_chatroom(
@@ -153,7 +142,7 @@ class CoreInterface(ABC):
         pass
 
     @abstractmethod
-    async def send_msg(self, msg: str, to_username: str)->str:
+    async def send_msg(self, msg: str, to_username: str) -> str:
         pass
 
     @abstractmethod
@@ -195,11 +184,11 @@ class CoreInterface(ABC):
         pass
 
     @abstractmethod
-    def dump_login_status(self, file_path: Optional[Path] = None):
+    def _dump_login_status(self, file_path: Optional[Path] = None):
         pass
 
     @abstractmethod
-    async def load_login_status(self, file_path, login_callback=None):
+    async def _load_login_status(self, file_path, login_callback=None):
         pass
 
     @abstractmethod
@@ -215,7 +204,7 @@ class CoreInterface(ABC):
         pass
 
     @abstractmethod
-    async def configured_reply(self):
+    async def _configured_reply(self):
         pass
 
     @abstractmethod
