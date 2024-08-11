@@ -1,6 +1,6 @@
 [project]
 name = "VChat"
-version = "1.0.1"
+dynamic = ["version"]
 authors = [
   { name="z2z63", email="vituralfuture@gmail.com" },
 ]
@@ -26,5 +26,8 @@ Homepage = "https://github.com/z2z63/VChat"
 Issues = "https://github.com/z2z63/VChat/issues"
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+version_file = "vchat/_version.py"

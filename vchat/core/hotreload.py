@@ -54,7 +54,6 @@ class CoreHotReloadMixin(CoreInterface, ABC):
             rmsgs, contacts = await self._net_helper.get_msg()
         except VOperationFailedError:
             await self.logout()
-            await self._load_last_login_status(jar["cookies"])
             logger.debug("server refused, loading login status failed.")
             raise VNetworkError("server refused, loading login status failed.")
 
