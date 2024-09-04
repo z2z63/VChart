@@ -82,7 +82,7 @@ def print_qr(file_path):
     if config.OS == "linux":
         subprocess.call(["xdg-open", file_path])
     elif config.OS == "win32":
-        subprocess.call(["explorer", file_path])
+        subprocess.call(["start", file_path])
     elif config.OS == "darwin":
         subprocess.call(["open", file_path])
     else:
