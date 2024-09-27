@@ -74,13 +74,11 @@
 - 如何将VChat集成到我的项目中？  
 异步：使用`TaskGroup`等待`core.run`和你的异步主函数即可  
 同步：创建一个线程，使用`asyncio.run`运行`vchat`即可  
-# 免责声明
+# 重要
+VChat是在MIT许可证下发行的自由软件，这意味着您可以在承认原作者（LittleCoder）的copyright的前提下以任何意图运行VChat、分发VChat的副本、修改VChat、重分发修改后的副本
 
-使用本项目默认用户已经阅读并知悉[微信个人账号使用规范](https://weixin.qq.com/cgi-bin/readtemplate?&t=page/agreement/personal_account&lang=zh_CN)
+使用VChat前，您应当知悉，VChat依赖于微信服务，这是一个商业的、专有的互联网服务，您无法在不使用微信服务的情况下使用VChat  
+因此，尽管原作者通过MIT协议授予您使用VChat的自由，但您如何使用微信服务仍然受[微信个人账号使用规范](https://weixin.qq.com/cgi-bin/readtemplate?&t=page/agreement/personal_account&lang=zh_CN)，以及您所在地区或国家的法律法规所限制  
 
-推荐单独注册一个微信号，并严格限制其用途，严格遵守《计算机软件保护条例》（2013修订）第十七条规定，禁止商用
+作者遵循原itchat-uos的协议，不在MIT协议之上附加任何条款，也不限制您使用VChat的自由。作者开发并维护VChat的原因仅仅是学习itchat-uos内部的原理、在linux平台使用微信。您在使用VChat过程中产生的任何滥用行为所造成的后果由您承担
 > 为了学习和研究软件内含的设计思想和原理，通过安装、显示、传输或者存储软件等方式使用软件的，可以不经软件著作权人许可
-
-一切由于使用本项目造成的后果由使用者自行承担
-
-如有侵权，请联系作者删除
