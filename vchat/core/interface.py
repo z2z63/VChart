@@ -195,7 +195,7 @@ class CoreInterface(ABC):
     async def auto_login(
         self,
         hot_reload=True,
-        status_storage_path1: Path | str = Path("vchat.pkl"),
+        status_storage_path: Path | str = Path("vchat.pkl"),
         enable_cmd_qr=False,
         pic_path=None,
         qr_callback=None,
