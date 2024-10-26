@@ -221,3 +221,8 @@ class CoreLoginMixin(CoreInterface, ABC):
             self._alive = False
         self._net_helper.clear_cookies()
         self._storage.clear()
+        
+    @override
+    @property
+    def alive(self) -> bool:
+        return self._alive
