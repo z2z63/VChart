@@ -78,15 +78,16 @@ def msg_formatter(text):
     return text
 
 
-def print_qr(file_path):
+def open_qr(file_path) -> bool:
     if config.OS == "linux":
-        subprocess.call(["xdg-open", file_path])
+        result = subprocess.run(["xdg-open", file_path])
     elif config.OS == "win32":
-        subprocess.call(["start", file_path])
+        result = subprocess.run(["powershell", "-Command", "Invoke-Item", file_path])
     elif config.OS == "darwin":
-        subprocess.call(["open", file_path])
+        result = subprocess.run(["open", file_path])
     else:
         raise NotImplementedError
+    return result.returncode == 0
 
 
 def search_dict_list(contact_list: list["Contact"], key, value):

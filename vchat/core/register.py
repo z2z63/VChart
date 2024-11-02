@@ -26,7 +26,7 @@ class CoreRegisterMixin(CoreInterface, ABC):
         hot_reload=True,
         status_storage_path: Path | str = Path("vchat.pkl"),
         enable_cmd_qr=False,
-        pic_path=None,
+        pic_path : Path= Path("QR.svg"),
         qr_callback=None,
         login_callback=None,
     ):

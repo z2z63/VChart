@@ -12,7 +12,7 @@ from vchat.storage import Storage
 
 
 class CoreInterface(ABC):
-    def __init__(self):
+    def __init__(self) -> None:
         self._alive = False
         self._storage: Storage = Storage()
         self._net_helper: NetHelper = NetHelper()
@@ -29,10 +29,10 @@ class CoreInterface(ABC):
     @abstractmethod
     def _login(
         self,
-        enable_cmd_qr=False,
-        pic_path=None,
-        qr_callback=None,
-        login_callback=None,
+        enable_cmd_qr,
+        pic_path : Path,
+        qr_callback,
+        login_callback,
     ):
         pass
 
@@ -40,8 +40,8 @@ class CoreInterface(ABC):
     def get_qr(
         self,
         uuid: Optional[str] = None,
-        enable_cmd_qr=False,
-        pic_path: Optional[str] = None,
+        enable_cmd_qr : bool =False,
+        pic_path: Path = Path("QR.svg"),
         qr_callback=None,
     ):
         pass
@@ -197,7 +197,7 @@ class CoreInterface(ABC):
         hot_reload=True,
         status_storage_path: Path | str = Path("vchat.pkl"),
         enable_cmd_qr=False,
-        pic_path=None,
+        pic_path : Path= Path("QR.svg"),
         qr_callback=None,
         login_callback=None,
     ):

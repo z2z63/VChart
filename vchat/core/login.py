@@ -1,11 +1,11 @@
 import asyncio
 import io
-import os
 import sys
 import traceback
 from abc import ABC
 from collections.abc import Iterable
 from typing import Optional
+from pathlib import Path
 
 from aiohttp.client_exceptions import ClientResponseError
 from pyqrcode import QRCode
@@ -28,13 +28,10 @@ class CoreLoginMixin(CoreInterface, ABC):
     @override
     async def _login(
         self,
-        enable_cmd_qr=False,
-        pic_path=None,
-        qr_callback=None,
-        event_scan_payload=None,
-        scan_status=None,
-        event_stream=None,
-        login_callback=None,
+        enable_cmd_qr,
+        pic_path :Path,
+        qr_callback,
+        login_callback,
     ):
         if self._alive:
             logger.warning("vchat has already logged in.")
@@ -53,8 +50,8 @@ class CoreLoginMixin(CoreInterface, ABC):
             await login_callback(self._storage.myname)
         else:
             utils.clear_screen()
-            if os.path.exists(pic_path or config.DEFAULT_QR):
-                os.remove(pic_path or config.DEFAULT_QR)
+            if pic_path.exists():
+                pic_path.unlink()
         logger.info("Login successfully as %s" % self._storage.nick_name)
 
     async def push_login(self) -> Optional[str]:
@@ -62,10 +59,13 @@ class CoreLoginMixin(CoreInterface, ABC):
 
     @override
     async def get_qr(
-        self, uuid=None, enable_cmd_qr=False, pic_path=None, qr_callback=None
+        self,
+        uuid: Optional[str] = None,
+        enable_cmd_qr : bool =False,
+        pic_path: Path = Path("QR.svg"),
+        qr_callback=None,
     ):
         uuid = uuid or self.uuid
-        pic_path = pic_path or config.DEFAULT_QR
         qrStorage = io.BytesIO()
         qrCode = QRCode("https://login.weixin.qq.com/l/" + uuid)
         qrCode.svg(qrStorage, scale=10)
@@ -78,11 +78,14 @@ class CoreLoginMixin(CoreInterface, ABC):
                 logger.critical("Please scan the QR code to log in.")
                 logger.critical(qrCode.terminal())
             else:
-                utils.print_qr(pic_path)
+                success = utils.open_qr(pic_path)
+                if not success:
+                    logger.critical("Open QR code failed, please scan the QR code to log in.")
+                    logger.critical(qrCode.terminal())
         return qrStorage
 
     async def _get_uuid_and_wait_for_scan(
-        self, enable_cmd_qr=False, pic_path=None, qr_callback=None
+        self, enable_cmd_qr, pic_path : Path, qr_callback
     ) -> str:
         """
         wait for user scan QR code, if timeout, get new uuid and retry until login
@@ -221,7 +224,7 @@ class CoreLoginMixin(CoreInterface, ABC):
             self._alive = False
         self._net_helper.clear_cookies()
         self._storage.clear()
-        
+
     @override
     @property
     def alive(self) -> bool:
