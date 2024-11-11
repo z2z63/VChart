@@ -4,6 +4,7 @@ import time
 from abc import ABC
 from collections.abc import Callable, Iterable
 from typing import Optional, Literal
+import json
 
 from aiohttp import ClientError
 
@@ -82,7 +83,7 @@ class NetHelperUpdateMixin(NetHelperInterface, ABC):
             dic = await resp.json(content_type=None)
             if dic["BaseResponse"]["Ret"] != 0:
                 logger.warning(
-                    "sync message failed, server return: %s", await resp.text()
+                    "sync message failed, server return: %s", json.dumps(dic)
                 )
                 raise VOperationFailedError("获取新消息失败，请重新登录")
             self.login_info.SyncKey = dic["SyncKey"]
