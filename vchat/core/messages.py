@@ -11,7 +11,7 @@ from vchat.core.interface import CoreInterface
 from vchat.errors import VMalformedParameterError
 from vchat.model import Content
 from vchat.model import RawMessage, Message
-from vchat.model import User, Contact
+from vchat.model import User, Contact, ChatroomMember
 
 if sys.version_info >= (3, 12):
     from typing import override
@@ -23,7 +23,7 @@ from vchat.config import logger
 class CoreMessageMixin(CoreInterface, ABC):
     async def _parse_raw_message_contact(
         self, rmsg: RawMessage
-    ) -> tuple[Contact, Contact, User | None, bool | None]:
+    ) -> tuple[Contact, Contact, ChatroomMember | None, bool | None]:
         sender = None
         is_at_me = None
         params: dict[str, Contact | None] = {
@@ -47,12 +47,8 @@ class CoreMessageMixin(CoreInterface, ABC):
             params["to"] = self._storage.members.get(
                 rmsg.to_username, User(UserName=rmsg.to_username)
             )
-        elif rmsg.from_username == self._storage.myname and rmsg.to_username in (
-            "filehelper",
-            "fmessage",
-            "weixin",
-        ):
-            #     自己发给特殊账号的消息
+        elif rmsg.from_username == self._storage.myname and not rmsg.to_username.startswith('@'):
+            # 自己发给特殊账号的消息
             params["to"] = self._storage.members.get(
                 rmsg.to_username, User(UserName=rmsg.to_username)
             )
@@ -113,7 +109,7 @@ class CoreMessageMixin(CoreInterface, ABC):
             )
             yield msg
 
-    async def _produce_group_chat(self, rmsg: RawMessage) -> tuple[User, bool]:
+    async def _produce_group_chat(self, rmsg: RawMessage) -> tuple[ChatroomMember | None, bool | None]:
         """
         群聊消息在解析Content前需要特殊处理
         1. 保证群聊信息已经加载（可能更新）
@@ -121,10 +117,10 @@ class CoreMessageMixin(CoreInterface, ABC):
         3. 群员（自己除外）发送的Content中的‘首部’表示发送消息的群员，去掉‘首部’后才上正常的消息内容
         4. 判断是否@自己
         """
-        # 收到消息的两种情况
+        # 收到消息的三种情况
         # 1. 或者群聊给自己发送消息，content带有‘首部’
         # demo: '@feed53c4feec0c07ea9bcd85737559720c537f6fc3a8ea765d2e2ddc79be5d3f:<br/>李四'
-        # 2. 自己打开群聊并点击输入框，会收到一条空的消息
+        # 2. 群聊横幅显示的消息，没有发送群员
         # 3. 自己给群聊发送消息，没有‘首部’
         content = rmsg.content
         ma = re.match("(@[0-9a-z]*?):<br/>(.*)$", content)
@@ -136,8 +132,7 @@ class CoreMessageMixin(CoreInterface, ABC):
             actualUserName = self._storage.myname
             chatroom_username = rmsg["ToUserName"]
         else:
-            raise NotImplementedError
-            # TODO: 发送文本为空字符串时会接受到消息指示错误
+            return None, None
         # 如果是新群聊，需要加载群聊信息
         if chatroom_username not in self._storage.chatrooms:
             await self.update_chatroom(chatroom_username)

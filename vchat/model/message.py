@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from vchat.model import Contact
 from vchat.model import Content
-from vchat.model import User
+from vchat.model import ChatroomMember
 
 if sys.version_info >= (3, 12):
     from typing import override
@@ -29,7 +29,7 @@ class RawMessage(Mapping):
     def __getitem__(self, __key):
         return self._other[__key]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.from_username: str = kwargs["FromUserName"]
         self.to_username: str = kwargs["ToUserName"]
         self.content: str = kwargs["Content"]
@@ -70,7 +70,7 @@ class Message:
     to: Contact
     content: Content
     message_id: str
-    chatroom_sender: User | None = None
+    chatroom_sender: ChatroomMember | None = None
 
     def __repr__(self):
         return f"<Message: {self.from_} -> {self.to}: {self.content}>"
