@@ -276,9 +276,21 @@ class LinkContent(Content):
     @staticmethod
     def from_raw_message(rmsg: "RawMessage") -> "LinkContent":
         tree = etree.XML(rmsg['Content'])
-        title = tree.xpath("/msg/appmsg/title/text()")[0]
-        source_display_name = tree.xpath("/msg/appmsg/sourcedisplayname/text()")[0]
-        url = tree.xpath("/msg/appmsg/url/text()")[0]
+        data = tree.xpath("/msg/appmsg/title/text()")
+        if len(data) == 1:
+            title = data[0]
+        else:
+            title = ""
+        data = tree.xpath("/msg/appmsg/sourcedisplayname/text()")
+        if len(data) == 1:
+            source_display_name = data[0]
+        else:
+            source_display_name = ""
+        url = tree.xpath("/msg/appmsg/url/text()")
+        if len(data) == 1:
+            url = data[0]
+        else:
+            url = ""
         return LinkContent(title, source_display_name, url)
 
     def todict(self):
