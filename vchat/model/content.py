@@ -59,7 +59,7 @@ class Content(ABC):
             content = SystemContent.from_raw_message(rmsg)
         elif msg_type == 10002:
             content = RevokeContent.from_raw_message(rmsg)
-        elif msg_type in [40, 43, 50, 52, 53, 9999]:
+        elif msg_type in [40, 43, 50, 52, 53, 9999, 51]:
             content = UselessContent.from_raw_message(rmsg, "useless message")
         else:
             logger.warning("未知的消息类型: %s\n%s", msg_type, rmsg["Content"])
