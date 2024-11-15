@@ -81,6 +81,9 @@ class NetHelperUpdateMixin(NetHelperInterface, ABC):
         ) as resp:
             dic = await resp.json(content_type=None)
             if dic["BaseResponse"]["Ret"] != 0:
+                logger.warning(
+                    "sync message failed, server return: %s", await resp.text()
+                )
                 raise VOperationFailedError("获取新消息失败，请重新登录")
             self.login_info.SyncKey = dic["SyncKey"]
             self.login_info.synckey = "|".join(

@@ -11,7 +11,7 @@ from collections.abc import (
 from typing import Optional, Literal, ParamSpec, TypeVar, Any, BinaryIO
 
 import aiohttp
-from aiohttp import ClientError
+from aiohttp import ClientError, ClientSession
 
 from vchat import config
 from vchat.config import logger
@@ -43,7 +43,7 @@ def catch_exception(
 
 class NetHelperInterface(ABC):
     def __init__(self):
-        self.session = None
+        self.session: ClientSession = None
         self.login_info: LoginInfo = LoginInfo()
 
     async def init(self):
