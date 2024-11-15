@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class Storage:
-    def __init__(self):
+    def __init__(self) -> None:
         self.myname: Optional[str] = None
         self.nick_name: Optional[str] = None
         self.members: dict[str, User] = {}

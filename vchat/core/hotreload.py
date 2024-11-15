@@ -4,7 +4,6 @@ from abc import ABC
 from pathlib import Path
 from typing import Optional
 
-
 from vchat.core.interface import CoreInterface
 from vchat.errors import (
     VNetworkError,
@@ -23,7 +22,7 @@ from vchat.config import logger
 
 class CoreHotReloadMixin(CoreInterface, ABC):
     @override
-    async def _dump_login_status(self, file_path: Optional[Path] = None) -> None:
+    def _dump_login_status(self, file_path: Optional[Path] = None) -> None:
         file_path = file_path or self._hot_reload_path
         status = {
             "loginInfo": self._net_helper.login_info,
@@ -53,7 +52,8 @@ class CoreHotReloadMixin(CoreInterface, ABC):
         try:
             rmsgs, contacts = await self._net_helper.get_msg()
         except VOperationFailedError:
-            await self.logout()
+            self._net_helper.clear_cookies()
+            self._storage.clear()
             logger.debug("server refused, loading login status failed.")
             raise VNetworkError("server refused, loading login status failed.")
 

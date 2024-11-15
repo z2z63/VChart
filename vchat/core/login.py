@@ -4,15 +4,15 @@ import sys
 import traceback
 from abc import ABC
 from collections.abc import Iterable
-from typing import Optional
 from pathlib import Path
+from typing import Optional
 
 from aiohttp.client_exceptions import ClientResponseError
 from pyqrcode import QRCode
 
-from vchat import config, utils
+from vchat import utils
 from vchat.core.interface import CoreInterface
-from vchat.errors import VUserCallbackError, VOperationFailedError, VLoginError
+from vchat.errors import VOperationFailedError, VLoginError
 from vchat.model import Chatroom, User, Contact
 from vchat.model import RawMessage
 
@@ -29,7 +29,7 @@ class CoreLoginMixin(CoreInterface, ABC):
     async def _login(
         self,
         enable_cmd_qr,
-        pic_path :Path,
+        pic_path: Path,
         qr_callback,
         login_callback,
     ):
@@ -61,7 +61,7 @@ class CoreLoginMixin(CoreInterface, ABC):
     async def get_qr(
         self,
         uuid: Optional[str] = None,
-        enable_cmd_qr : bool =False,
+        enable_cmd_qr: bool = False,
         pic_path: Path = Path("QR.svg"),
         qr_callback=None,
     ):
@@ -80,12 +80,14 @@ class CoreLoginMixin(CoreInterface, ABC):
             else:
                 success = utils.open_qr(pic_path)
                 if not success:
-                    logger.critical("Open QR code failed, please scan the QR code to log in.")
+                    logger.critical(
+                        "Open QR code failed, please scan the QR code to log in."
+                    )
                     logger.critical(qrCode.terminal())
         return qrStorage
 
     async def _get_uuid_and_wait_for_scan(
-        self, enable_cmd_qr, pic_path : Path, qr_callback
+        self, enable_cmd_qr, pic_path: Path, qr_callback
     ) -> str:
         """
         wait for user scan QR code, if timeout, get new uuid and retry until login
@@ -190,13 +192,6 @@ class CoreLoginMixin(CoreInterface, ABC):
                 else:
                     await self._consume_message_loop_body(msgs, contacts)
             retryCount = 0
-        await self.logout()
-        if exit_callback is not None:
-            try:
-                exit_callback()
-            except VUserCallbackError as e:
-                logger.warning(e)
-        logger.info("LOG OUT!")
 
     async def _consume_message_loop_body(
         self, rmsgs: Iterable[RawMessage], contacts: Iterable[Contact]
@@ -221,7 +216,10 @@ class CoreLoginMixin(CoreInterface, ABC):
     async def logout(self):
         if self._alive:
             await self._net_helper.logout()
+            await self._net_helper.close()
             self._alive = False
+        if self._use_hot_reload:
+            self._dump_login_status()
         self._net_helper.clear_cookies()
         self._storage.clear()
 

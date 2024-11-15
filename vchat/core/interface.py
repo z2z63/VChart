@@ -30,7 +30,7 @@ class CoreInterface(ABC):
     def _login(
         self,
         enable_cmd_qr,
-        pic_path : Path,
+        pic_path: Path,
         qr_callback,
         login_callback,
     ):
@@ -40,14 +40,14 @@ class CoreInterface(ABC):
     def get_qr(
         self,
         uuid: Optional[str] = None,
-        enable_cmd_qr : bool =False,
+        enable_cmd_qr: bool = False,
         pic_path: Path = Path("QR.svg"),
         qr_callback=None,
     ):
         pass
 
     @abstractmethod
-    def start_receiving(
+    async def start_receiving(
         self, exit_callback: Optional[Callable] = None, get_receiving_fn_only=False
     ):
         pass
@@ -158,7 +158,7 @@ class CoreInterface(ABC):
         pass
 
     @abstractmethod
-    def send_image(
+    async def send_image(
         self,
         to_username: str,
         file_path: Optional[Path] = None,
@@ -197,7 +197,7 @@ class CoreInterface(ABC):
         hot_reload=True,
         status_storage_path: Path | str = Path("vchat.pkl"),
         enable_cmd_qr=False,
-        pic_path : Path= Path("QR.svg"),
+        pic_path: Path = Path("QR.svg"),
         qr_callback=None,
         login_callback=None,
     ):
@@ -230,17 +230,22 @@ class CoreInterface(ABC):
         # 绕过mypy类型检查，这个函数体没有实际意义
         async for msg in self._produce_msg(rmsgs):
             yield msg
+
     @abstractmethod
-    def search_contact(self, searcher: Callable[[Contact], bool], contact_types=ContactTypes.ALL) -> list[Contact]: ...
+    def search_contact(
+        self, searcher: Callable[[Contact], bool], contact_types=ContactTypes.ALL
+    ) -> list[Contact]: ...
     @abstractmethod
     def search_friends(self, searcher: Callable[[Contact], bool]) -> list[Contact]: ...
     @abstractmethod
-    def search_chatrooms(self, searcher: Callable[[Contact], bool]) -> list[Contact]: ...
+    def search_chatrooms(
+        self, searcher: Callable[[Contact], bool]
+    ) -> list[Contact]: ...
     @abstractmethod
     def search_friends_by_nickname(self, name: str) -> list[Contact]: ...
     @abstractmethod
     def search_chatrooms_by_nickname(self, name: str) -> list[Contact]: ...
-    
+
     @property
     @abstractmethod
     def alive(self) -> bool: ...

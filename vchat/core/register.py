@@ -2,6 +2,7 @@ import asyncio
 import sys
 import traceback
 from abc import ABC
+from asyncio.exceptions import CancelledError
 from collections.abc import Callable, Awaitable
 from pathlib import Path
 
@@ -26,7 +27,7 @@ class CoreRegisterMixin(CoreInterface, ABC):
         hot_reload=True,
         status_storage_path: Path | str = Path("vchat.pkl"),
         enable_cmd_qr=False,
-        pic_path : Path= Path("QR.svg"),
+        pic_path: Path = Path("QR.svg"),
         qr_callback=None,
         login_callback=None,
     ):
@@ -55,17 +56,10 @@ class CoreRegisterMixin(CoreInterface, ABC):
             login_callback=login_callback,
         )
         if hot_reload:
-            await self._dump_login_status(self._hot_reload_path)
+            self._dump_login_status(self._hot_reload_path)
 
     @override
     async def _configured_reply(self):
-        """determine the type of message and reply if its method is defined
-        however, I use a strange way to determine whether a msg is from massive platform
-        I haven't found a better solution here
-        The main problem I'm worrying about is the mismatching of new friends added on phone
-        If you have any good idea, pleeeease report an issue. I will be more than grateful.
-        """
-
         msg = await self._storage.msgs.get()
         if isinstance(msg.from_, User):
             reply_fn_list = self._function_dict[ContactTypes.USER]
@@ -85,9 +79,6 @@ class CoreRegisterMixin(CoreInterface, ABC):
 
     @override
     def msg_register(self, msg_types: ContentTypes, contact_type: ContactTypes):
-        """a decorator constructor
-        return a specific decorator based on information given"""
-
         def _msg_register(fn):
             if ContactTypes.USER in contact_type:
                 self._function_dict[ContactTypes.USER].append(
@@ -107,15 +98,8 @@ class CoreRegisterMixin(CoreInterface, ABC):
 
     async def _message_queue_consume_loop(self):
         logger.info("Start auto replying.")
-
-        try:
-            while True:
-                await self._configured_reply()
-        except KeyboardInterrupt:
-            self._alive = False
-            logger.debug("vchat received an ^C and exit.")
-            logger.info("Bye~")
-        print("error!")
+        while True:
+            await self._configured_reply()
 
     @override
     async def run(self, exit_callback=None):
@@ -124,12 +108,27 @@ class CoreRegisterMixin(CoreInterface, ABC):
         #     tg.create_task(self._message_queue_consume_loop())
         #     tg.create_task(self.start_receiving(exit_callback))
         # await self._net_helper.close()
-
-        await asyncio.gather(
-            (self._message_queue_consume_loop()),
-            (self.start_receiving(exit_callback)),
-        )
-        await self._net_helper.close()
+        try:
+            await asyncio.gather(
+                self._message_queue_consume_loop(),
+                self.start_receiving(exit_callback),
+            )
+        except CancelledError:
+            self._alive = False
+            await self._net_helper.close()
+            logger.debug("vchat received ^C and exit.")
+            logger.info("Bye~")
+            raise
+        finally:
+            if self._alive:
+                await self._net_helper.close()
+            if exit_callback is not None:
+                try:
+                    logger.info("prepare to execute exit callback")
+                    exit_callback()
+                except VUserCallbackError as e:
+                    logger.warning(e)
+            logger.info("vchat exit")
 
 
 def _conditional_wrapper(filter_types, fn) -> Callable[..., Awaitable]:
