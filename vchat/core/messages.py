@@ -47,7 +47,10 @@ class CoreMessageMixin(CoreInterface, ABC):
             params["to"] = self._storage.members.get(
                 rmsg.to_username, User(UserName=rmsg.to_username)
             )
-        elif rmsg.from_username == self._storage.myname and not rmsg.to_username.startswith('@'):
+        elif (
+            rmsg.from_username == self._storage.myname
+            and not rmsg.to_username.startswith("@")
+        ):
             # 自己发给特殊账号的消息
             params["to"] = self._storage.members.get(
                 rmsg.to_username, User(UserName=rmsg.to_username)
@@ -109,7 +112,9 @@ class CoreMessageMixin(CoreInterface, ABC):
             )
             yield msg
 
-    async def _produce_group_chat(self, rmsg: RawMessage) -> tuple[ChatroomMember | None, bool | None]:
+    async def _produce_group_chat(
+        self, rmsg: RawMessage
+    ) -> tuple[ChatroomMember | None, bool | None]:
         """
         群聊消息在解析Content前需要特殊处理
         1. 保证群聊信息已经加载（可能更新）

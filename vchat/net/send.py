@@ -167,7 +167,7 @@ class NetHelperSendMixin(NetHelperInterface, ABC):
                 "FromUserName": self.login_info.myname,
                 "ToUserName": to_username,
                 "LocalID": msg_id,
-                "ClientMsgId": msg_id
+                "ClientMsgId": msg_id,
             },
             "Scene": 0,
         }

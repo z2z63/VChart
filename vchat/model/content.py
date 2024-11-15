@@ -26,7 +26,19 @@ class ContentTypes(enum.Flag):
     DEFAULT = enum.auto()
     USELESS = enum.auto()
     LINK = enum.auto()
-    ALL = UNKNOWN | TEXT | IMAGE | VIDEO | VOICE | ATTACH | SYSTEM | REVOKE | DEFAULT | USELESS | LINK
+    ALL = (
+        UNKNOWN
+        | TEXT
+        | IMAGE
+        | VIDEO
+        | VOICE
+        | ATTACH
+        | SYSTEM
+        | REVOKE
+        | DEFAULT
+        | USELESS
+        | LINK
+    )
 
 
 @dataclass
@@ -35,7 +47,7 @@ class Content(ABC):
 
     @staticmethod
     def build_from_content_trimmed_raw_message(
-            rmsg: "RawMessage", net_helper: "NetHelperInterface", is_at_me: bool | None
+        rmsg: "RawMessage", net_helper: "NetHelperInterface", is_at_me: bool | None
     ) -> "Content":
         msg_type = rmsg["MsgType"]
         content: "Content"
@@ -68,7 +80,7 @@ class Content(ABC):
 
     @staticmethod
     def _parse_sharing_message(
-            rmsg: "RawMessage", net_helper: "NetHelperInterface"
+        rmsg: "RawMessage", net_helper: "NetHelperInterface"
     ) -> "Content":
         app_msg_type = rmsg["AppMsgType"]
         if app_msg_type == 0:
@@ -120,7 +132,7 @@ class ImageContent(Content):
 
     @staticmethod
     def from_raw_message(
-            rmsg: "RawMessage", net_helper: "NetHelperInterface"
+        rmsg: "RawMessage", net_helper: "NetHelperInterface"
     ) -> "ImageContent":
         return ImageContent(
             rmsg["MsgId"], net_helper.get_img_download_fn(rmsg["MsgId"])
@@ -138,7 +150,7 @@ class VideoContent(Content):
 
     @staticmethod
     def from_raw_message(
-            rmsg: "RawMessage", net_helper: "NetHelperInterface"
+        rmsg: "RawMessage", net_helper: "NetHelperInterface"
     ) -> "VideoContent":
         return VideoContent(
             rmsg["MsgId"], net_helper.get_video_download_fn(rmsg["MsgId"])
@@ -156,7 +168,7 @@ class VoiceContent(Content):
 
     @staticmethod
     def from_raw_message(
-            rmsg: "RawMessage", net_helper: "NetHelperInterface"
+        rmsg: "RawMessage", net_helper: "NetHelperInterface"
     ) -> "VoiceContent":
         return VoiceContent(
             rmsg["MsgId"], net_helper.get_voice_download_fn(rmsg["MsgId"])
@@ -177,9 +189,9 @@ class AttachContent(Content):
 
     @staticmethod
     def from_raw_message(
-            rmsg: "RawMessage", net_helper: "NetHelperInterface"
+        rmsg: "RawMessage", net_helper: "NetHelperInterface"
     ) -> "AttachContent | DefaultContent":
-        ma = re.search('<totallen>(.*?)</totallen>', rmsg.content)
+        ma = re.search("<totallen>(.*?)</totallen>", rmsg.content)
         if ma is None:
             return DefaultContent(rmsg, "解析附件信息失败")
         file_size = int(ma.group(1))
@@ -195,7 +207,6 @@ class AttachContent(Content):
         return {
             "type": "attach",
             "file_size": self.filesize,
-
             # 以下字段是下载文件所需的所有参数，key名不能变
             "sender": self.sender,
             "mediaid": self.media_id,
@@ -275,7 +286,7 @@ class LinkContent(Content):
 
     @staticmethod
     def from_raw_message(rmsg: "RawMessage") -> "LinkContent":
-        tree = etree.XML(rmsg['Content'])
+        tree = etree.XML(rmsg["Content"])
         data = tree.xpath("/msg/appmsg/title/text()")
         if len(data) == 1:
             title = data[0]

@@ -16,6 +16,7 @@ class Contact(Mapping, ABC):
     """
     Contact 是抽象类，可以是 User, Chatroom, Mp
     """
+
     type = ContactTypes.ALL
 
     def __getitem__(self, __key):
