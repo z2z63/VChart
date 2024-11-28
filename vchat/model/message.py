@@ -71,6 +71,7 @@ class Message:
     content: Content
     message_id: str
     chatroom_sender: ChatroomMember | None = None
+    create_time: int = -1
 
     def __repr__(self):
         return f"<Message: {self.from_} -> {self.to}: {self.content}>"
@@ -84,4 +85,5 @@ class Message:
             "chatroom_sender": (
                 None if self.chatroom_sender is None else self.chatroom_sender.todict()
             ),
+            "create_time": self.create_time,
         }
