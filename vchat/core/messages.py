@@ -108,7 +108,12 @@ class CoreMessageMixin(CoreInterface, ABC):
                 m, self._net_helper, is_at_me
             )
             msg = Message(
-                from_contact, to_contact, content, m["MsgId"], chatroom_sender
+                from_=from_contact,
+                to=to_contact,
+                content=content,
+                message_id=m["MsgId"],
+                chatroom_sender=chatroom_sender,
+                create_time=m.create_time,
             )
             yield msg
 
