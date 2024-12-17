@@ -14,6 +14,7 @@ from vchat.model import Contact
 from vchat.model import User
 from vchat.net.interface import NetHelperInterface, catch_exception
 from vchat.storage.login_info import LoginInfo
+from vchat.config import logger
 
 if sys.version_info >= (3, 12):
     from typing import override
@@ -126,8 +127,12 @@ class NetHelperLoginMixin(NetHelperInterface, ABC):
         self.login_info.deviceid = config.DEVICEID
         self.login_info.login_time = int(time.time() * 1e3)
         self.login_info.base_request = {}
-        skey = re.findall("<skey>(.*?)</skey>", text, re.S)[0]
-        pass_ticket = re.findall("<pass_ticket>(.*?)</pass_ticket>", text, re.S)[0]
+        try:
+            skey = re.findall("<skey>(.*?)</skey>", text, re.S)[0]
+            pass_ticket = re.findall("<pass_ticket>(.*?)</pass_ticket>", text, re.S)[0]
+        except IndexError:
+            logger.critical("login failed, server refused with response: " + text)
+            raise VLoginError(text)
         self.login_info.skey = self.login_info.base_request["Skey"] = skey
 
         cookies = self.session.cookie_jar.filter_cookies(yarl.URL(self.login_info.url))
